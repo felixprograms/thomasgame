@@ -1,40 +1,20 @@
 require 'ruby2d'
 # Set the window size
 set width: 900, height: 600
-menu_text = Text.new(
-  'Player vs Player Press :UP',
-  x: 220, y: 100,
-  size: 40,
-  color: 'green',
-  rotate: 0,
-  z: 10
-)
-second_text = Text.new(
-  'Player vs Computer Press :DOWN',
-  x: 200, y: 150,
-  size: 40,
-  color: 'green',
-  rotate: 0,
-  z: 10
-)
-@sversus_computer = nil
 
-
-
+@versus_computer = nil
 # Create a new shape
-player_width = 50
-player_height = 160
-
-
-p1 = Rectangle.new(
+@player_width = 50
+@player_height = 160
+@p1 = Rectangle.new(
   x: 25, y: 160,
-  width: player_width, height: player_height,
+  width: @player_width, height: @player_height,
   color: 'yellow',
   z: 20
 )
 @p2 = Rectangle.new(
-  x: 875 - player_width, y: 160,
-  width: player_width, height: player_height,
+  x: 875 - @player_width, y: 160,
+  width: @player_width, height: @player_height,
   color: 'yellow',
   z: 20
 )
@@ -48,26 +28,41 @@ p1 = Rectangle.new(
 )
 @p1point = 0
 @p2point = 0
-@horizontal_speed = 5
+@horizontal_speed = 10
 @vertical_speed = 3
-player1score = Text.new(
-  @p1point,
-  x: 675, y: 20,
-  size: 40,
-  color: 'blue',
-  rotate: 0,
-  z: 10
-)
-player2score = Text.new(
-  @p1point,
-  x: 225, y: 20,
-  size: 40,
-  color: 'blue',
-  rotate: 0,
-  z: 10
-)
+@controller_move = 30
+@key_move = 15
+
+def collided?(ball, p1, p2)
+  if ball.x >= p1.x && ball.x <= p1.x + p1.width && ball.y >= p1.y && ball.y <= p1.y + p1.height
+    @horizontal_speed = @horizontal_speed * -1
+    @horizontal_speed *= 1.1
+  end
+  if ball.x >= p2.x && ball.x <= p2.x + p2.width && ball.y >= p2.y && ball.y <= p2.y + p2.height
+    @horizontal_speed = @horizontal_speed * -1
+    @horizontal_speed *= 1.1
+  end
+end
+
 def start_game
-  if @p1point <= 28 && @p2point <= 28 
+  player1score = Text.new(
+    @p1point,
+    x: 675, y: 20,
+    size: 40,
+    color: 'blue',
+    rotate: 0,
+    z: 10
+  )
+  player2score = Text.new(
+    @p1point,
+    x: 225, y: 20,
+    size: 40,
+    color: 'blue',
+    rotate: 0,
+    z: 10
+  )
+
+  if @p1point <= 28 && @p2point <= 28
     update do
       @ball.x += @horizontal_speed
       @ball.y += @vertical_speed
@@ -90,7 +85,7 @@ def start_game
       if @versus_computer
         if @p2point >= 5
           if @ball.x <= rand(420..460) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move
             else
               @p1.y -= @key_move
@@ -101,7 +96,7 @@ def start_game
         end
         if @p2point == 4
           if @ball.x <= rand(390..430) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move / 2
             else
               @p1.y -= @key_move / 2
@@ -112,7 +107,7 @@ def start_game
         end
         if @p2point == 3
           if @ball.x <= rand(360..420) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move / 2
             else
               @p1.y -= @key_move / 2
@@ -123,7 +118,7 @@ def start_game
         end
         if @p2point == 2
           if @ball.x <= rand(350..390) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move / 3
             else
               @p1.y -= @key_move / 3
@@ -134,7 +129,7 @@ def start_game
         end
         if @p2point == 1
           if @ball.x <= rand(320..360) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move / 4
             else
               @p1.y -= @key_move / 4
@@ -145,7 +140,7 @@ def start_game
         end
         if @p2point == 0
           if @ball.x <= rand(300..320) && @horizontal_speed <= 0
-            if @ball.y >= @p1.y + player_height / 2
+            if @ball.y >= @p1.y + @player_height / 2
               @p1.y += @key_move / 4
             else
               @p1.y -= @key_move / 4
@@ -175,83 +170,70 @@ def start_game
     z: 10
   )
   end
-
-  def collided?(ball, p1, p2)
-    if ball.x >= p1.x && ball.x <= p1.x + p1.width && ball.y >= p1.y && ball.y <= p1.y + p1.height
-      @horizontal_speed = @horizontal_speed * -1
-    end
-    if ball.x >= p2.x && ball.x <= p2.x + p2.width && ball.y >= p2.y && ball.y <= p2.y + p2.height
-      @horizontal_speed = @horizontal_speed * -1
-    end
-  end
-  if @versus_computer == false
-    @controller_move = 30
-
-    on :controller do |event|
-      # A mouse event occurred
-      if event.button == :b
-  
-        if p1.y >= 0
-          p1.y = p1.y - @controller_move
-        end
-        # @p2.y
-    #   key = event.x
-    #   key = event.y
-    #   p1.y = event.y
-    #   @p2.y = event.y
-      end
-  
-  
-      if event.button == :a
-        if p1.y <= 600 - 160
-          p1.y += @controller_move
-        end
-      end
-    end
-  
-    @key_move = 15
-    on :key do |event|
-      # A mouse event occurred
-      if event.key == 'up'
-  
-        if @p2.y >= 0
-          @p2.y = @p2.y - @key_move
-        end
-        # @p2.y
-    #   key = event.x
-    #   key = event.y
-    #   p1.y = event.y
-    #   @p2.y = event.y
-      end
-      puts event
-  
-      if event.key == 'down'
-  
-        if @p2.y <= 600 - 160
-          @p2.y += @key_move
-        end
-      end
-    end
-  end
-
 end
 
+on :controller do |event|
+  # A mouse event occurred
+  if event.button == :b
+
+    if p1.y >= 0
+      p1.y = p1.y - @controller_move
+    end
+  end
+
+  if event.button == :a
+    if p1.y <= 600 - 160
+      p1.y += @controller_move
+    end
+  end
+end
+
+# Show the window
+menu_text = Text.new(
+  'Player vs Player Press :UP',
+  x: 220, y: 100,
+  size: 40,
+  color: 'green',
+  rotate: 0,
+  z: 10
+)
+second_text = Text.new(
+  'Player vs Computer Press :DOWN',
+  x: 200, y: 150,
+  size: 40,
+  color: 'green',
+  rotate: 0,
+  z: 10
+)
+
 on :key do |event|
-  if @sversus_computer == nil
+  if @versus_computer == nil
     if event.key == "down"
-      @sversus_computer = true
+      @versus_computer = true
       menu_text.text = ''
       second_text.text = ''
       start_game
     elsif event.key == "up"
-      @sversus_computer = false
+      @versus_computer = false
       menu_text.text = ''
       second_text.text = ''
       start_game
     end
   end
+
+  # A mouse event occurred
+  if @versus_computer != nil && event.key == 'up'
+    if @p2.y >= 0
+      @p2.y = @p2.y - @key_move
+    end
+  end
+  puts event
+
+  if @versus_computer != nil && event.key == 'down'
+    if @p2.y <= 600 - 160
+      @p2.y += @key_move
+    end
+  end
 end
-# Show the window
+
 show
-
-
